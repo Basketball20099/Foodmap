@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Food Nutrition Chatbot</title>
+    <style>
+        :root {
+            --primary-color: #FF9933; /* Orange from Indian flag */
+            --secondary-color: #138808; /* Green from Indian flag */
+            --accent-color: #000080; /* Navy blue */
+            --light-bg: #f8f8f8;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --light-text: #666666;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header styles */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary-color);
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        header h1 span {
+            margin-left: 10px;
+        }
+
+        header p {
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        /* Main chat container */
+        .chat-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Topic selection panel */
+        .topics-panel {
+            width: 250px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            margin-right: 20px;
+            overflow-y: auto;
+        }
+
+        .topics-panel h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+        }
+
+        .topic-item {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .topic-item:hover {
+            background-color: rgba(255, 153, 51, 0.1);
+        }
+
+        .topic-item i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .topics-section {
+            margin-bottom: 20px;
+        }
+
+        .topics-section h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: var(--light-text);
+        }
+
+        /* Chat box */
+        .chat-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+            margin-left: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Message styles */
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background-color: var(--secondary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: #f0f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message p {
+            margin: 0;
+        }
+
+        .message-time {
+            font-size: 11px;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 12px 15px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--light-text);
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Chat input area */
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            background-color: #f7f7f7;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 15px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(255, 153, 51, 0.2);
+        }
+
+        .chat-input button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Suggestion chips */
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-chip {
+            background-color: rgba(255, 153, 51, 0.1);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 153, 51, 0.3);
+        }
+
+        .suggestion-chip:hover {
+            background-color: rgba(255, 153, 51, 0.2);
+        }
+
+        /* Nutrition cards */
+        .nutrition-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .nutrition-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            border-left: 4px solid var(--primary-color);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .nutrition-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .nutrition-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .nutrition-table th, .nutrition-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nutrition-table th {
+            color: var(--light-text);
+            font-weight: normal;
+            font-size: 13px;
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 768px) {
+            .chat-wrapper {
+                flex-direction: column;
+            }
+
+            .topics-panel {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 20px;
+                max-height: 200px;
+            }
+
+            .nutrition-cards {
+                flex-direction: column;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+
+        /* Toggle for mobile */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        @media screen and (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+
+            .topics-panel {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 80%;
+                height: 100%;
+                z-index: 101;
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .topics-panel.active {
+                display: block;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 100;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+        }
+
+        /* Settings button */
+        .settings-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* Mode toggle switch */
+        .mode-toggle {
+            position: absolute;
+            top: 15px;
+            right: 60px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .mode-toggle span {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--secondary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Settings modal */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            width: 400px;
+            max-width: 90%;
+        }
+
+        .settings-content h3 {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .settings-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .settings-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #ddd;
+        }
+
+        /* Error message */
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Table and list styling in bot messages */
+        .bot-message table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .bot-message table th, .bot-message table td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .bot-message table th {
+            background-color: #f5f5f5;
+        }
+
+        .bot-message ul, .bot-message ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .bot-message li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🍛 <span>Indian Food Nutrition Chatbot</span></h1>
+            <p>Discover nutritional insights about Indian cuisine</p>
+            
+            <div class="mode-toggle">
+                <span>Demo Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="modeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <button class="settings-btn" id="settingsBtn">⚙️</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="chat-wrapper">
+            <!-- Quick Topic Selection Panel -->
+            <div class="topics-panel" id="topicsPanel">
+                <h2>Explore Nutrition Topics</h2>
+                
+                <div class="topics-section">
+                    <h3>Nutrients</h3>
+                    <div class="topic-item" onclick="askQuestion('High protein Indian foods')">
+                        <i>🥩</i> High Protein Foods
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Iron rich foods for pregnancy')">
+                        <i>⚙️</i> Iron Rich Foods
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Calcium rich vegetarian foods')">
+                        <i>🦴</i> Calcium Rich Options
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('High fiber Indian foods')">
+                        <i>🌿</i> Fiber Rich Foods
+                    </div>
+                </div>
+                
+                <div class="topics-section">
+                    <h3>Health Goals</h3>
+                    <div class="topic-item" onclick="askQuestion('Low calorie Indian snacks')">
+                        <i>⚖️</i> Weight Management
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Diabetic friendly Indian dishes')">
+                        <i>🍯</i> Diabetic Friendly
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Low cholesterol Indian food')">
+                        <i>❤️</i> Heart Healthy Options
+                    </div>
+                </div>
+                
+                <div class="topics-section">
+                    <h3>Meal Types</h3>
+                    <div class="topic-item" onclick="askQuestion('Healthy Indian breakfast options')">
+                        <i>🍳</i> Breakfast Options
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Nutritious Indian lunch ideas')">
+                        <i>🍱</i> Lunch Ideas
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Low calorie Indian dinner')">
+                        <i>🍽️</i> Dinner Options
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Healthy Indian snacks')">
+                        <i>🥠</i> Snack Ideas
+                    </div>
+                </div>
+                
+                <div class="topics-section">
+                    <h3>Popular Dishes</h3>
+                    <div class="topic-item" onclick="askQuestion('Nutritional value of masala dosa')">
+                        <i>🥞</i> Masala Dosa
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Is biryani healthy')">
+                        <i>🍚</i> Biryani
+                    </div>
+                    <div class="topic-item" onclick="askQuestion('Paneer nutrition facts')">
+                        <i>🧀</i> Paneer Dishes
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-box">
+                <div class="chat-header">
+                    <h2>Chat with Nutrition Assistant</h2>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Bot welcome message -->
+                    <div class="message bot-message">
+                        <p>Hello! I'm your Indian Food Nutrition Assistant powered by AI. I can help you discover nutritional information about Indian foods, find dishes based on specific nutrients, or answer questions about dietary needs.</p>
+                        <div class="message-time">Today, 12:00 PM</div>
+                    </div>
+                    
+                    <!-- Suggestion chips -->
+                    <div class="suggestion-chips">
+                        <div class="suggestion-chip" onclick="askQuestion('What are some high protein Indian foods?')">High protein foods?</div>
+                        <div class="suggestion-chip" onclick="askQuestion('Iron rich foods for pregnancy')">Iron for pregnancy?</div>
+                        <div class="suggestion-chip" onclick="askQuestion('Is masala dosa healthy?')">Is masala dosa healthy?</div>
+                        <div class="suggestion-chip" onclick="askQuestion('Low calorie Indian snacks')">Low calorie snacks?</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="userInput" placeholder="Ask me about Indian food nutrition..." onkeypress="handleKeyPress(event)">
+                    <button id="sendButton" onclick="sendMessage()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h3>API Settings</h3>
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <input type="password" id="apiKey" placeholder="Enter your Claude API key">
+                <div class="error-message" id="apiKeyError"></div>
+            </div>
+            <div class="form-group">
+                <label for="apiUrl">API URL</label>
+                <input type="text" id="apiUrl" placeholder="http://localhost:5000/api">
+            </div>
+            <div class="settings-buttons">
+                <button class="cancel-btn" onclick="closeSettings()">Cancel</button>
+                <button class="save-btn" onclick="saveSettings()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile toggle button and overlay -->
+    <div class="mobile-toggle" id="mobileToggle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 12H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 6H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3 18H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        // Configuration
+        let API_URL = 'http://localhost:5000/api';
+        let API_KEY = '';
+        let USE_DEMO_MODE = true; // Start in demo mode by default
+        
+        // Sample data for demonstration (demo mode)
+        const foodDatabase = {
+            "masala_dosa": {
+                "name": "Masala Dosa",
+                "calories": 165,
+                "protein": 3.5,
+                "carbs": 19.6,
+                "fat": 7.8,
+                "fiber": 1.2
+            },
+            "paneer_paratha": {
+                "name": "Paneer Paratha",
+                "calories": 263,
+                "protein": 8.0,
+                "carbs": 30.2,
+                "fat": 12.3,
+                "calcium": 128
+            },
+            "idli": {
+                "name": "Idli",
+                "calories": 138,
+                "protein": 3.1,
+                "carbs": 28.2,
+                "fat": 1.0,
+                "fiber": 5.0
+            }
+        };
+        
+        // Sample responses for demo mode
+        const sampleResponses = {
+            "high protein": createNutritionCards([
+                {name: "Chicken (without skin)", protein: "31g", calories: 165, type: "Non-vegetarian"},
+                {name: "Gun powder chutney", protein: "21.6g", calories: 312, type: "Vegetarian"},
+                {name: "Paneer Paratha", protein: "8g", calories: 263, type: "Vegetarian"}
+            ], "High Protein Foods"),
+            
+            "iron": createNutritionCards([
+                {name: "Kashmiri masala", iron: "14.7mg", calories: 389, type: "Spice blend"},
+                {name: "Garam masala", iron: "14.5mg", calories: 254, type: "Spice blend"},
+                {name: "Sesame ladoo", iron: "8.9mg", calories: 397, type: "Sweet"}
+            ], "Iron Rich Foods"),
+            
+            "calcium": createNutritionCards([
+                {name: "Sesame ladoo (Til ke ladoo)", calcium: "632mg", calories: 397, type: "Sweet"},
+                {name: "Garam masala", calcium: "610mg", calories: 254, type: "Spice blend"},
+                {name: "Chocolate burfi", calcium: "466mg", calories: 320, type: "Sweet"}
+            ], "High Calcium Foods"),
+            
+            "low calorie": createNutritionCards([
+                {name: "Idli", calories: 138, carbs: "28.2g", protein: "3.1g", type: "Breakfast"},
+                {name: "Vegetable raita", calories: 72, carbs: "5.8g", protein: "2.3g", type: "Side dish"},
+                {name: "Tomato soup", calories: 52, carbs: "8.5g", protein: "1.5g", type: "Soup"}
+            ], "Low Calorie Options"),
+            
+            "diabetic": createNutritionCards([
+                {name: "Plain Idli", calories: 138, sugar: "0.5g", carbs: "28.2g", type: "Low GI"},
+                {name: "Chickpeas curry", calories: 163, sugar: "1.2g", carbs: "19.5g", type: "High fiber"},
+                {name: "Vegetable upma", calories: 146, sugar: "0.8g", carbs: "16.5g", type: "High fiber"}
+            ], "Diabetic-Friendly Foods"),
+            
+            "dosa": `
+                <div class="nutrition-card">
+                    <h3>Masala Dosa</h3>
+                    <p>A popular South Indian breakfast dish made of fermented rice and lentil batter with potato filling.</p>
+                    <table class="nutrition-table">
+                        <tr><th>Nutrient</th><th>Amount per 100g</th></tr>
+                        <tr><td>Calories</td><td>165 kcal</td></tr>
+                        <tr><td>Protein</td><td>3.5g</td></tr>
+                        <tr><td>Carbohydrates</td><td>19.6g</td></tr>
+                        <tr><td>Fat</td><td>7.8g</td></tr>
+                        <tr><td>Fiber</td><td>1.2g</td></tr>
+                    </table>
+                    <p style="margin-top: 10px; font-size: 13px;">Masala dosa is moderately low in calories with a good balance of carbs and fat. It contains less carbs than plain dosa and is a better choice for those monitoring blood sugar levels.</p>
+                </div>
+                
+                <div class="suggestion-chips">
+                    <div class="suggestion-chip" onclick="askQuestion('Compare idli and dosa')">Compare with Idli</div>
+                    <div class="suggestion-chip" onclick="askQuestion('Is dosa good for weight loss')">Good for weight loss?</div>
+                </div>
+            `,
+            
+            "biryani": createNutritionCards([
+                {name: "Vegetable Biryani", calories: 175, protein: "3.2g", carbs: "18.6g", fat: "9.5g", type: "Vegetarian"},
+                {name: "Chicken Biryani", calories: 194, protein: "9.5g", carbs: "20.2g", fat: "8.3g", type: "Non-vegetarian"},
+                {name: "Mutton Biryani", calories: 191, protein: "7.4g", carbs: "22.5g", fat: "7.7g", type: "Non-vegetarian"}
+            ], "Biryani Variants"),
+            
+            // Additional responses for specific questions
+            "cholesterol-free": createNutritionCards([
+                {name: "Pea potato sandwich (toasted)", calories: 165, fat: "4.1g", cholesterol: "0mg", type: "Vegetarian"},
+                {name: "Paneer pea sandwich (toasted)", calories: 250, protein: "12.4g", cholesterol: "0mg", type: "Vegetarian"},
+                {name: "Sesame toast", calories: 495, fat: "18.7g", cholesterol: "0mg", type: "Vegetarian"},
+                {name: "Semolina porridge (Suji daliya)", calories: 101, carbs: "15.2g", cholesterol: "0mg", type: "Breakfast"}
+            ], "Cholesterol-Free Indian Foods"),
+            
+            "high fiber breakfast": `
+                <h3>High Fiber Breakfast Options</h3>
+                <div class="nutrition-cards">
+                    <div class="nutrition-card">
+                        <h3>Sprouts upma</h3>
+                        <table class="nutrition-table">
+                            <tr><th>Nutrient</th><th>Amount</th></tr>
+                            <tr><td>Calories</td><td>316 kcal</td></tr>
+                            <tr><td>Fiber</td><td>7.2g</td></tr>
+                            <tr><td>Protein</td><td>5.8g</td></tr>
+                        </table>
+                        <p style="margin-top: 10px; font-size: 13px;">Sprouts upma provides the highest fiber content among Indian breakfast options, offering 7.2g per 100g.</p>
+                    </div>
+                    <div class="nutrition-card">
+                        <h3>Instant idli (with semolina)</h3>
+                        <table class="nutrition-table">
+                            <tr><th>Nutrient</th><th>Amount</th></tr>
+                            <tr><td>Calories</td><td>247 kcal</td></tr>
+                            <tr><td>Fiber</td><td>7.1g</td></tr>
+                            <tr><td>Carbs</td><td>32.4g</td></tr>
+                        </table>
+                    </div>
+                    <div class="nutrition-card">
+                        <h3>Dal paratha</h3>
+                        <table class="nutrition-table">
+                            <tr><th>Nutrient</th><th>Amount</th></tr>
+                            <tr><td>Calories</td><td>268 kcal</td></tr>
+                            <tr><td>Fiber</td><td>6.5g</td></tr>
+                            <tr><td>Protein</td><td>9.2g</td></tr>
+                        </table>
+                    </div>
+                </div>
+            `,
+            
+            "dessert comparison": `
+                <h3>Indian vs Western Desserts: Calorie Comparison</h3>
+                
+                <div class="nutrition-card">
+                    <h3>Calorie Comparison</h3>
+                    <p>Indian sweets generally have similar or slightly higher calorie content compared to typical Western desserts, but the nutritional profiles differ.</p>
+                    
+                    <table class="nutrition-table">
+                        <tr><th>Indian Dessert</th><th>Calories (per 100g)</th><th>Western Dessert</th><th>Calories (per 100g)</th></tr>
+                        <tr><td>Shahi suji halwa</td><td>382 kcal</td><td>Black forest gateau</td><td>218 kcal</td></tr>
+                        <tr><td>Sweet rice (Meethe chawal)</td><td>215 kcal</td><td>Chocolate mousse</td><td>225 kcal</td></tr>
+                        <tr><td>Carrot halwa (Gajar ka halwa)</td><td>173 kcal</td><td>Vanilla ice cream</td><td>207 kcal</td></tr>
+                        <tr><td>Egg halwa (Ande ka halwa)</td><td>300 kcal</td><td>Cheesecake</td><td>321 kcal</td></tr>
+                    </table>
+                    
+                    <p style="margin-top: 10px; font-size: 13px;">Key differences: Indian desserts often contain more free sugars and ghee (clarified butter), but may also offer more micronutrients from ingredients like nuts, milk, and spices. Western desserts typically contain more refined flour and often have higher fat content from cream and butter.</p>
+                </div>
+                
+                <div class="suggestion-chips">
+                    <div class="suggestion-chip" onclick="askQuestion('Healthier Indian dessert options')">Healthier options?</div>
+                    <div class="suggestion-chip" onclick="askQuestion('Indian desserts for diabetics')">Diabetic-friendly?</div>
+                </div>
+            `
+        };
+
+        // Function to create nutrition cards
+        function createNutritionCards(foods, title) {
+            let html = `<h3>${title}</h3><div class="nutrition-cards">`;
+            
+            foods.forEach(food => {
+                html += `<div class="nutrition-card">
+                    <h3>${food.name}</h3>
+                    <table class="nutrition-table">
+                        <tr><th>Nutrient</th><th>Amount</th></tr>
+                        <tr><td>Calories</td><td>${food.calories} kcal</td></tr>`;
+                
+                if (food.protein) html += `<tr><td>Protein</td><td>${food.protein}</td></tr>`;
+                if (food.iron) html += `<tr><td>Iron</td><td>${food.iron}</td></tr>`;
+                if (food.calcium) html += `<tr><td>Calcium</td><td>${food.calcium}</td></tr>`;
+                if (food.carbs) html += `<tr><td>Carbohydrates</td><td>${food.carbs}</td></tr>`;
+                if (food.fat) html += `<tr><td>Fat</td><td>${food.fat}</td></tr>`;
+                if (food.sugar) html += `<tr><td>Sugar</td><td>${food.sugar}</td></tr>`;
+                if (food.cholesterol) html += `<tr><td>Cholesterol</td><td>${food.cholesterol}</td></tr>`;
+                if (food.type) html += `<tr><td>Type</td><td>${food.type}</td></tr>`;
+                
+                html += `</table></div>`;
+            });
+            
+            html += `</div>`;
+            return html;
+        }
+
+        // Function to add message to chat
+        function addMessage(text, isUser = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            // Create message content
+            const messagePara = document.createElement('p');
+            if (isUser) {
+                messagePara.textContent = text;
+            } else {
+                messagePara.innerHTML = text;
+            }
+            messageDiv.appendChild(messagePara);
+            
+            // Add timestamp
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            const now = new Date();
+            timeDiv.textContent = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            messageDiv.appendChild(timeDiv);
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to add typing indicator
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot';
+                typingDiv.appendChild(dot);
+            }
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to remove typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Function to handle user message
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (message) {
+                // Add user message
+                addMessage(message, true);
+                userInput.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Process in demo or API mode
+                if (USE_DEMO_MODE) {
+                    // Demo mode - simulate delay
+                    setTimeout(() => {
+                        hideTypingIndicator();
+                        const response = getDemoResponse(message);
+                        addMessage(response);
+                    }, 1000);
+                } else {
+                    // API mode - call backend
+                    callChatAPI(message)
+                        .then(response => {
+                            hideTypingIndicator();
+                            addMessage(response);
+                        })
+                        .catch(error => {
+                            hideTypingIndicator();
+                            console.error('API Error:', error);
+                            addMessage('Sorry, I encountered an error while processing your question. Please try again or check your API settings.');
+                        });
+                }
+            }
+        }
+
+        // Function to handle key press in input field
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Function to handle predefined questions
+        function askQuestion(question) {
+            document.getElementById('userInput').value = question;
+            sendMessage();
+        }
+
+        // Function to get demo response (no API call)
+        function getDemoResponse(message) {
+            message = message.toLowerCase();
+            
+            // Check for specific topics
+            if (message.includes('protein')) {
+                return sampleResponses["high protein"];
+            } 
+            else if (message.includes('iron') || message.includes('pregnancy')) {
+                return sampleResponses["iron"];
+            }
+            else if (message.includes('calcium') || message.includes('bone')) {
+                return sampleResponses["calcium"];
+            }
+            else if (message.includes('low calorie') || message.includes('weight loss') || message.includes('diet')) {
+                return sampleResponses["low calorie"];
+            }
+            else if (message.includes('diabetic') || message.includes('diabetes') || message.includes('sugar')) {
+                return sampleResponses["diabetic"];
+            }
+            else if (message.includes('dosa')) {
+                return sampleResponses["dosa"];
+            }
+            else if (message.includes('biryani')) {
+                return sampleResponses["biryani"];
+            }
+            // New response handlers for the failing questions
+            else if (message.includes('cholesterol-free') || message.includes('free of cholesterol') || 
+                    (message.includes('cholesterol') && message.includes('free'))) {
+                return sampleResponses["cholesterol-free"];
+            }
+            else if ((message.includes('breakfast') && message.includes('fiber')) || 
+                    (message.includes('breakfast') && message.includes('fibre')) ||
+                    (message.includes('high fiber') && message.includes('breakfast'))) {
+                return sampleResponses["high fiber breakfast"];
+            }
+            else if ((message.includes('dessert') && message.includes('compare')) || 
+                    (message.includes('indian dessert') && message.includes('western')) ||
+                    (message.includes('calorie') && message.includes('dessert'))) {
+                return sampleResponses["dessert comparison"];
+            }
+            
+            // Try to match portions of questions rather than exact matches
+            else if (message.includes('fiber') || message.includes('fibre')) {
+                return sampleResponses["high fiber breakfast"];
+            }
+            else if (message.includes('cholesterol')) {
+                return sampleResponses["cholesterol-free"];
+            }
+            else if (message.includes('dessert')) {
+                return sampleResponses["dessert comparison"];
+            }
+            
+            // Default response with suggestions
+            return `
+                <p>I don't have specific information about that yet. Here are some topics you might be interested in:</p>
+                <div class="suggestion-chips">
+                    <div class="suggestion-chip" onclick="askQuestion('High protein Indian foods')">High Protein</div>
+                    <div class="suggestion-chip" onclick="askQuestion('Iron rich foods')">Iron Rich</div>
+                    <div class="suggestion-chip" onclick="askQuestion('Low calorie Indian snacks')">Low Calorie</div>
+                    <div class="suggestion-chip" onclick="askQuestion('Is biryani healthy?')">Biryani Nutrition</div>
+                </div>
+            `;
+        }
+
+        // Function to call the chat API
+        async function callChatAPI(message) {
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': API_KEY ? `Bearer ${API_KEY}` : undefined
+                    },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('Error calling API:', error);
+                throw error;
+            }
+        }
+
+        // Settings functions
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            document.getElementById('apiKey').value = API_KEY || '';
+            document.getElementById('apiUrl').value = API_URL || 'http://localhost:5000/api';
+        }
+        
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+        
+        function saveSettings() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiUrl = document.getElementById('apiUrl').value.trim();
+            
+            if (!apiKey && !USE_DEMO_MODE) {
+                document.getElementById('apiKeyError').textContent = 'API Key is required for API mode';
+                return;
+            }
+            
+            API_KEY = apiKey;
+            API_URL = apiUrl || 'http://localhost:5000/api';
+            
+            // Save settings to localStorage
+            localStorage.setItem('food_chatbot_api_key', API_KEY);
+            localStorage.setItem('food_chatbot_api_url', API_URL);
+            
+            document.getElementById('apiKeyError').textContent = '';
+            closeSettings();
+            
+            // Show confirmation
+            addMessage('Settings saved! I\'m now connected to the API.', false);
+        }
+        
+        // Toggle mode function
+        function toggleMode(useApi) {
+            USE_DEMO_MODE = !useApi;
+            document.getElementById('modeToggle').checked = useApi;
+            
+            if (useApi && !API_KEY) {
+                openSettings();
+            }
+            
+            // Update mode display
+            addMessage(`Mode switched to ${USE_DEMO_MODE ? 'Demo Mode' : 'API Mode'}. ${!USE_DEMO_MODE && !API_KEY ? 'Please configure your API settings.' : ''}`, false);
+        }
+
+        // Mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved settings
+            API_KEY = localStorage.getItem('food_chatbot_api_key') || '';
+            API_URL = localStorage.getItem('food_chatbot_api_url') || 'http://localhost:5000/api';
+            
+            // Initialize UI
+            document.getElementById('modeToggle').checked = !USE_DEMO_MODE;
+            
+            // Set up event listeners
+            const mobileToggle = document.getElementById('mobileToggle');
+            const topicsPanel = document.getElementById('topicsPanel');
+            const overlay = document.getElementById('overlay');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const modeToggle = document.getElementById('modeToggle');
+            
+            mobileToggle.addEventListener('click', function() {
+                topicsPanel.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', function() {
+                topicsPanel.classList.remove('active');
+                overlay.classList.remove('active');
+                closeSettings();
+            });
+            
+            settingsBtn.addEventListener('click', openSettings);
+            
+            modeToggle.addEventListener('change', function() {
+                toggleMode(this.checked);
+            });
+        });
+    </script>
+</body>
+</html>
